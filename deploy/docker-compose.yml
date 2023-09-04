@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+      target: prod
+    image: ewalletBackend:${EWALLETBACKEND_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    environment:
+      EWALLETBACKEND_HOST: 0.0.0.0
+      EWALLETBACKEND_DB_FILE: /db_data/db.sqlite3
+    volumes:
+    - ewalletBackend-db-data:/db_data/
+
+
+
+volumes:
+  ewalletBackend-db-data:
+    name: ewalletBackend-db-data

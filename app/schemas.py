@@ -2,6 +2,9 @@ from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
 
+'''
+Users
+'''
 class UserBase(BaseModel):
     email: str
     first_name: str
@@ -21,16 +24,27 @@ class User(UserBase):
     class Config:
         orm_mode = True
 
+'''
+Wallets
+'''
+class Currency(Enum):
+    SGD = "SGD"
+    USD = "USD"
+    EUR = "EUR"
+
+class WalletOut(BaseModel):
+    id: int
+    balance: float
+    currency: Currency = Currency.SGD
+    
+class UserWithWallet(User):
+    wallet: WalletOut
+
 class WalletBase(BaseModel):
     user_id: int
 
 class WalletCreate(WalletBase):
     pass
-
-class Currency(Enum):
-    SGD = "SGD"
-    USD = "USD"
-    EUR = "EUR"
 
 class Wallet(WalletBase):
     id: int
@@ -42,6 +56,9 @@ class Wallet(WalletBase):
     class Config:
         orm_mode = True
 
+'''
+Transactions
+'''
 class TransactionBase(BaseModel):
     sender_wallet_id: int
     receiver_wallet_id: int
@@ -57,9 +74,24 @@ class Transaction(TransactionBase):
     class Config:
         orm_mode = True
 
+class TransactionOut(BaseModel):
+    id: int
+    sender_wallet_id: int
+    receiver_wallet_id: int
+    amount: float
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+
+'''
+Tokens
+'''
 class Token(BaseModel):
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
     email: str | None = None
+    

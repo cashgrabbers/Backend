@@ -18,14 +18,15 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
 
-    wallet = relationship("Wallet", back_populates="user")
+    wallet = relationship("Wallet", uselist=False, back_populates="user")
 
 class Wallet(Base):
     __tablename__ = "wallets"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    balance = Column(Float, default=0)
+    balance = Column(Float, default=100.0)
+    currency = Column(String, default="SGD")
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

@@ -477,3 +477,18 @@ components:
 'tasks.py' contains Celery tasks. These tasks are asynchronous and can be used for long running operations.
 """
 ```
+
+## Deployment
+- ssh into linode server ssh root@170.187.226.220
+- pull latest from github repo
+- build docker image
+```bash
+docker build -t ewallet-backend .
+```
+- run docker image
+```bash
+docker run -d -p 80:80 ewallet-backend
+```
+
+## Production endpoint
+http://170-187-226-220.ip.linodeusercontent.com

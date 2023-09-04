@@ -1,0 +1,8 @@
+python-jose
+fastapi
+bcrypt
+pydantic
+pydantic-settings
+uvicorn
+SQLAlchemy
+python-multipart

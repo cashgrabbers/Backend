@@ -1,5 +1,7 @@
 ### Python template
 
+app/db.sqlite3
+
 .idea/
 .vscode/
 # Byte-compiled / optimized / DLL files

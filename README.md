@@ -2,6 +2,7 @@
 
 This project was generated using fastapi_template.
 
+   <a href="https://codespaces.new/cashgrabbers/Backend"><img src="https://img.shields.io/badge/Github_Codespace-Open-blue?logo=github" alt="Open in GitHub Codespaces"></a>
 ## Poetry
 
 This project uses poetry. It's a modern dependency management

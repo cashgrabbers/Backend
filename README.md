@@ -277,8 +277,6 @@ sequenceDiagram
     W->>M: return updated_wallet
 ```
 
-## Anything UNCLEAR
-The requirement is clear to me.
 
 
 ## Required Python third-party packages

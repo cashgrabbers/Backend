@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from routers import router as api_router
-from middlewares import setup_middlewares
+from app.routers import router as api_router
+from app.middlewares import setup_middlewares
 
-from database import Base, engine
+from app.database import Base, engine
 
 app = FastAPI()
 

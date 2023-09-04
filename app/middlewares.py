@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Callable
-from config import settings
+from app.config import settings
 import time
 
 def setup_middlewares(app: FastAPI):

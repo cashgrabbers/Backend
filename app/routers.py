@@ -3,11 +3,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from datetime import timedelta
 
-from config import settings
+from app.config import settings
 from sqlalchemy.orm import Session
 from typing import List
-from database import get_db
-from schemas import (
+from app.database import get_db
+from app.schemas import (
     UserCreate,
     User,
     Token,
@@ -16,10 +16,10 @@ from schemas import (
     TransactionCreate,
     Transaction,
     UserWithWallet,
-    TransactionOut
+    TransactionOut,
 )
-from auth import authenticate_user, create_access_token, get_current_user
-from utils import (
+from app.auth import authenticate_user, create_access_token, get_current_user
+from app.utils import (
     get_user,
     get_users,
     create_user,
@@ -31,7 +31,7 @@ from utils import (
     check_wallet_balance,
     update_wallet_balance,
     to_user_with_wallet,
-    transfer_money
+    transfer_money,
 )
 
 router = APIRouter()
@@ -72,10 +72,10 @@ def get_protected_route(current_user: User = Depends(get_current_user)):
 
 @router.post("/transfer", response_model=Transaction)
 def create_transaction(
-    transaction: TransactionCreate, 
-    db: Session = Depends(get_db), 
+    transaction: TransactionCreate,
+    db: Session = Depends(get_db),
     # verify JWT token and get current user
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     return transfer_money(db=db, transaction=transaction, current_user=current_user)
 

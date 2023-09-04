@@ -3,9 +3,9 @@ from sqlalchemy import or_
 from typing import Any, List
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from models import User, Wallet, Transaction
-from schemas import UserCreate, WalletCreate, TransactionCreate, UserWithWallet, WalletOut
-from auth import hash_password
+from app.models import User, Wallet, Transaction
+from app.schemas import UserCreate, WalletCreate, TransactionCreate, UserWithWallet, WalletOut
+from app.auth import hash_password
 
 def get_user(db: Session, user_id: int) -> Any:
     return db.query(User).filter(User.id == user_id).first()
@@ -22,17 +22,17 @@ def create_user(db: Session, user: UserCreate) -> User:
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     hashed_password = hash_password(user.password)
-    
+
     # create user
     db_user = User(email=user.email, password=hashed_password, first_name=user.first_name, last_name=user.last_name, phone_number=user.phone_number)
     db.add(db_user)
     db.commit()
-    
+
     # wallet is created
     db_wallet = Wallet(user_id=db_user.id, balance=100.0, currency="SGD")
     db.add(db_wallet)
     db.commit()
-    
+
     db.refresh(db_user)
     db.refresh(db_wallet)
     return db_user
@@ -91,7 +91,7 @@ def to_user_with_wallet(orm_user: User) -> UserWithWallet:
         wallet=WalletOut(
             id=orm_user.wallet.id,
             balance=orm_user.wallet.balance,
-            currency=orm_user.wallet.currency
+            currency=orm_user.wallet.currency,
         ),
     )
 
@@ -102,7 +102,7 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
     # Ensure the authenticated user is the owner of the sender's wallet
     if sender_wallet.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="You are not authorized to make transactions from this wallet")
-    
+
     sender_wallet = db.query(Wallet).filter(Wallet.id == transaction.sender_wallet_id).first()
     receiver_wallet = db.query(Wallet).filter(Wallet.id == transaction.receiver_wallet_id).first()
 
@@ -118,9 +118,9 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
 
     # Log the transaction
     db_transaction = Transaction(
-        sender_wallet_id=transaction.sender_wallet_id, 
-        receiver_wallet_id=transaction.receiver_wallet_id, 
-        amount=transaction.amount
+        sender_wallet_id=transaction.sender_wallet_id,
+        receiver_wallet_id=transaction.receiver_wallet_id,
+        amount=transaction.amount,
     )
     db.add(db_transaction)
     db.commit()
@@ -142,4 +142,3 @@ def create_transaction(db: Session, transaction: TransactionCreate) -> Transacti
     db.commit()
     db.refresh(db_transaction)
     return db_transaction
-

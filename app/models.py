@@ -42,3 +42,29 @@ class Transaction(Base):
     receiver_wallet_id = Column(Integer, ForeignKey("wallets.id"))
     amount = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Withdraw(Base):
+    __tablename__ = "withdraws"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_wallet_id = Column(Integer, ForeignKey("wallets.id"))
+    amount = Column(Float)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class Deposit(Base):
+    __tablename__ = "deposits"
+
+    id = Column(Integer, primary_key=True, index=True)
+    receiver_wallet_id = Column(Integer, ForeignKey("wallets.id"))
+    payment_method = Column(String)
+    payment_account = Column(String)
+    status = Column(String)
+
+    amount = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+    
+
+

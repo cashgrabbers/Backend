@@ -3,11 +3,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from datetime import timedelta
 
-from app.config import settings
+from ..config import settings
 from sqlalchemy.orm import Session
 from typing import List
-from app.database import get_db
-from app.schemas import (
+from ..database import get_db
+from ..schemas import (
     UserCreate,
     User,
     Token,
@@ -18,8 +18,8 @@ from app.schemas import (
     UserWithWallet,
     TransactionOut,
 )
-from app.auth import authenticate_user, create_access_token, get_current_user
-from app.utils import (
+from ..auth import authenticate_user, create_access_token, get_current_user
+from ..utils import (
     get_user,
     get_users,
     create_user,

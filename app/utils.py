@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from app.models import User, Wallet, Transaction
 from app.schemas import UserCreate, WalletCreate, TransactionCreate, UserWithWallet, WalletOut
 from app.auth import hash_password
+from app.config import settings
+import requests
 
 def get_user(db: Session, user_id: int) -> Any:
     return db.query(User).filter(User.id == user_id).first()
@@ -142,3 +144,28 @@ def create_transaction(db: Session, transaction: TransactionCreate) -> Transacti
     db.commit()
     db.refresh(db_transaction)
     return db_transaction
+
+def get_paypal_session():
+    try:
+        url = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
+
+        payload = 'grant_type=client_credentials'
+        headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic '+ settings.PAYPAL_API_KEY,
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
+        
+        response.raise_for_status()  # Raise an exception for non-2xx responses
+        data = response.json()
+        api_key = data.get("access_token")
+        if api_key:
+            # Store the retrieved API key securely, e.g., in a database or environment variable
+            # This is just a placeholder example
+            # app.state.api_key = api_key
+            return api_key
+            
+            pass
+    except Exception as e:
+        # Handle exceptions as needed
+        pass

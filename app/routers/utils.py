@@ -10,7 +10,7 @@ from .auth import hash_password
 from ..config import settings
 from ..models import Transaction, User, Wallet
 from ..schemas import (TransactionCreate, UserCreate, UserWithWallet,
-                         WalletCreate, WalletOut)
+                        WalletCreate, WalletOut)
 
 
 def get_user(db: Session, user_id: int) -> Any:
@@ -148,6 +148,14 @@ def create_transaction(db: Session, transaction: TransactionCreate) -> Transacti
     db.commit()
     db.refresh(db_transaction)
     return db_transaction
+
+def add_balance_to_wallet(db: Session, wallet_id: int, amount: float):
+    wallet = db.query(Wallet).filter(Wallet.id == wallet_id).first()
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+    wallet.balance += amount
+    db.commit()
+    return wallet
 
 def get_paypal_session():
     try:

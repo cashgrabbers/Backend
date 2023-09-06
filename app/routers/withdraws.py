@@ -6,12 +6,9 @@ import json
 
 import requests
 
-from ..dependencies import poll_for_paypal_session
-
 router = APIRouter(
     prefix="/withdraws",
     tags=["withdraws"],
-    dependencies=[Depends(poll_for_paypal_session)],
     responses={404: {"description": "Not found"}},
 )
 

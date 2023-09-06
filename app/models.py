@@ -41,6 +41,7 @@ class Transaction(Base):
     sender_wallet_id = Column(Integer, ForeignKey("wallets.id"))
     receiver_wallet_id = Column(Integer, ForeignKey("wallets.id"))
     amount = Column(Float)
+    currency = Column(String, default="SGD")
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Withdraw(Base):
@@ -49,21 +50,20 @@ class Withdraw(Base):
     id = Column(Integer, primary_key=True, index=True)
     sender_wallet_id = Column(Integer, ForeignKey("wallets.id"))
     amount = Column(Float)
+    currency = Column(String, default="SGD")
+    paypal_payout_id = Column(String)
     
     created_at = Column(DateTime, default=datetime.utcnow)
 
-# TODO: Decide if this should be a separate table from Transactions or not
-#       Alternatively, can put it as a superclass of Transactions
 class Deposit(Base):
     __tablename__ = "deposits"
 
     id = Column(Integer, primary_key=True, index=True)
     receiver_wallet_id = Column(Integer, ForeignKey("wallets.id"))
-    payment_method = Column(String)
-    payment_account = Column(String)
-    status = Column(String)
-
     amount = Column(Float)
+    currency = Column(String, default="SGD")
+    paypal_order_id = Column(String)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
 
 

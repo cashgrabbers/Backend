@@ -1,13 +1,17 @@
 ## utils.py
-from sqlalchemy import or_
 from typing import Any, List
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-from app.models import User, Wallet, Transaction
-from app.schemas import UserCreate, WalletCreate, TransactionCreate, UserWithWallet, WalletOut
-from app.auth import hash_password
-from app.config import settings
+
 import requests
+from fastapi import HTTPException, status
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
+
+from .auth import hash_password
+from ..config import settings
+from ..models import Transaction, User, Wallet
+from ..schemas import (TransactionCreate, UserCreate, UserWithWallet,
+                         WalletCreate, WalletOut)
+
 
 def get_user(db: Session, user_id: int) -> Any:
     return db.query(User).filter(User.id == user_id).first()

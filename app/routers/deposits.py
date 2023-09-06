@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from ..utils import get_paypal_session
+from .utils import get_paypal_session
 
 import json
 import requests
@@ -17,6 +17,8 @@ router = APIRouter(
 
 fake_deposits_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
 
+# TODO: Check out what payments are
+#       https://developer.paypal.com/docs/api/payments/v2/
 @router.get("/create")
 def create_deposit():
     try:
@@ -47,17 +49,17 @@ def create_deposit():
                 }
                 }
             }, 
-            "payment_instruction": {
-                "disbursement_mode": "INSTANT",
-                "platform_fees": [
-                {
-                    "amount": {
-                    "currency_code": "USD",
-                    "value": "25.00"
-                    }
-                }
-                ]
-            }
+            # "payment_instruction": {
+            #     "disbursement_mode": "INSTANT",
+            #     "platform_fees": [
+            #     {
+            #         "amount": {
+            #         "currency_code": "USD",
+            #         "value": "25.00"
+            #         }
+            #     }
+            #     ]
+            # }
             }
         ],
         "application_context": {
@@ -67,11 +69,13 @@ def create_deposit():
         })
 
         headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + get_paypal_session(),
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + get_paypal_session(),
         }
 
         response = requests.request("POST", url, headers=headers, data=payload)
+        print(response)
+        
         response.raise_for_status() 
         
         return response.json()
@@ -79,10 +83,20 @@ def create_deposit():
         # Handle exceptions as needed
         print(e)
 
-        # FIXME: not sure how to raise e actually, its not working well
+        # FIXME: not sure how to raise e actually
         # raise e
         pass
 
 @router.get("/{deposit_id}")
-def get_deposit():
+def get_deposit(deposit_id: str):
+    headers = {
+        'Authorization': 'Bearer ' + get_paypal_session(),
+    }
+
+    # FIXME: deposit id doesnt mean transaction id, so how is this supposed to scale?
+    #           Testing purposes: 4AC52781DN396583L
+    response = requests.get('https://api-m.sandbox.paypal.com/v2/checkout/orders/' + deposit_id, headers=headers)
+
+    return response.json()
+
     pass

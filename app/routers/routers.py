@@ -18,8 +18,8 @@ from ..schemas import (
     UserWithWallet,
     TransactionOut,
 )
-from ..auth import authenticate_user, create_access_token, get_current_user
-from ..utils import (
+from .auth import authenticate_user, create_access_token, get_current_user
+from .utils import (
     get_user,
     get_users,
     create_user,

@@ -52,6 +52,8 @@ class Withdraw(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# TODO: Decide if this should be a separate table from Transactions or not
+#       Alternatively, can put it as a superclass of Transactions
 class Deposit(Base):
     __tablename__ = "deposits"
 

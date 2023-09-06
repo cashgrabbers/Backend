@@ -2,7 +2,7 @@
 config.py
 """
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 import base64
 import os
 from dotenv import load_dotenv
@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     FLOWER_PORT: int = 5555
     FLOWER_URL_PREFIX: str = "flower"
     FLOWER_BASIC_AUTH: str = "user:password"
+    BUBBLE_APP_URL: str ="https://e-wallet-94178.bubbleapps.io/version-test/"
 
     # class Config:
     #     env_file = ".env"

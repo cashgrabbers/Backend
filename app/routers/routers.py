@@ -28,7 +28,6 @@ from .utils import (
     create_user,
     get_wallet,
     get_wallets,
-    # get_transaction,
     get_transactions_and_deposits,
     create_transaction,
     check_wallet_balance,

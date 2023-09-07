@@ -72,20 +72,20 @@ These routes require an access token to access each of the endpoints.
 
 - **Endpoint:** `POST /transfer`
 - **Description:** Transfer money from sender to receiver wallet. This updates both wallet values and Transaction Logs.
+- **Headers:** Requires access token in `Authorization` header.
 - **Sample Input:**
   ```json
   {
-    "sender_wallet_id": 3,
     "receiver_wallet_id": 1,
     "amount": 1.0
   }
   ```
-- **Headers:** Requires access token in `Authorization` header.
 
 ### Create Deposit (Using PayPal)
 
 - **Endpoint:** `POST /deposit/create`
 - **Description:** Create a deposit into the account using PayPal. This returns the URL to select the payment type.
+- **Headers:** Requires access token in `Authorization` header.
 - **Sample Input:**
   ```json
   {
@@ -97,13 +97,26 @@ These routes require an access token to access each of the endpoints.
 
 - **Endpoint:** `POST /deposit/capture`
 - **Description:** Captures the `deposit_id` to complete the transaction, updating the wallet value and Deposit transaction Logs.
+- **Headers:** Requires access token in `Authorization` header.
 - **Sample Input:**
+
   ```json
   {
     "deposit_id": "18655675FT415211F"
   }
   ```
+
+  ### Create Withdrawal (Using PayPal)
+
+- **Endpoint:** `POST /withdraws/create`
+- **Description:** Create a withdrawal from the account using PayPal.
 - **Headers:** Requires access token in `Authorization` header.
+- **Sample Input:**
+  ```json
+  {
+    "amount": 10.0
+  }
+  ```
 
 ## Docker
 

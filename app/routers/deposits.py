@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 @router.post("/create")
-def create_deposit(deposit_request: DepositRequest):
+def create_deposit(deposit_request: DepositRequest, current_user: User = Depends(get_current_user) ):
     amount = deposit_request.amount
     try:
         url = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
@@ -107,23 +107,20 @@ def capture_deposit(capture_request: CaptureRequest, db: Session = Depends(get_d
             currency = currency,
             paypal_order_id=deposit_id
         )
-        
         deposit_entry = create_deposit_transaction(db, db_deposit)
         
         return {"status": "success", "updated_balance": updated_wallet.balance, "deposit_entry": deposit_entry}
 
     return response.json()
 
-@router.get("/{deposit_id}")
-def get_deposit(deposit_id: str):
-    headers = {
-        'Authorization': 'Bearer ' + get_paypal_session(),
-    }
+# @router.get("/{deposit_id}")
+# def get_deposit(deposit_id: str):
+#     headers = {
+#         'Authorization': 'Bearer ' + get_paypal_session(),
+#     }
 
-    # FIXME: deposit id doesnt mean transaction id, so how is this supposed to scale?
-    #           Testing purposes: 4AC52781DN396583L
-    response = requests.get('https://api-m.sandbox.paypal.com/v2/checkout/orders/' + deposit_id, headers=headers)
+#     # FIXME: deposit id doesnt mean transaction id, so how is this supposed to scale?
+#     #           Testing purposes: 4AC52781DN396583L
+#     response = requests.get('https://api-m.sandbox.paypal.com/v2/checkout/orders/' + deposit_id, headers=headers)
 
-    return response.json()
-
-    pass
+#     return response.json()

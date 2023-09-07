@@ -102,18 +102,14 @@ def to_user_with_wallet(orm_user: User) -> UserWithWallet:
     )
 
 def transfer_money(db: Session, transaction: TransactionCreate, current_user: User) -> Transaction:
-    # Fetch sender's wallet
-    sender_wallet = db.query(Wallet).filter(Wallet.id == transaction.sender_wallet_id).first()
+    # Fetch sender's wallet using the current user's ID
+    sender_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+    if not sender_wallet:
+        raise HTTPException(status_code=404, detail="Sender's wallet not found")
 
-    # Ensure the authenticated user is the owner of the sender's wallet
-    if sender_wallet.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You are not authorized to make transactions from this wallet")
-
-    sender_wallet = db.query(Wallet).filter(Wallet.id == transaction.sender_wallet_id).first()
     receiver_wallet = db.query(Wallet).filter(Wallet.id == transaction.receiver_wallet_id).first()
-
-    if not sender_wallet or not receiver_wallet:
-        raise HTTPException(status_code=404, detail="Wallet not found")
+    if not receiver_wallet:
+        raise HTTPException(status_code=404, detail="Receiver's wallet not found")
 
     if sender_wallet.balance < transaction.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")
@@ -124,7 +120,7 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
 
     # Log the transaction
     db_transaction = Transaction(
-        sender_wallet_id=transaction.sender_wallet_id,
+        sender_wallet_id=sender_wallet.id,  # Use sender_wallet.id directly here
         receiver_wallet_id=transaction.receiver_wallet_id,
         amount=transaction.amount,
     )
@@ -133,6 +129,7 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
     db.refresh(db_transaction)
 
     return db_transaction
+
 
 # def get_transaction(db: Session, transaction_id: int) -> Any:
 #     return db.query(Transaction).filter(Transaction.id == transaction_id).first()
@@ -160,6 +157,16 @@ def add_balance_to_wallet(db: Session, wallet_id: int, amount: float):
     if not wallet:
         raise HTTPException(status_code=404, detail="Wallet not found")
     wallet.balance += amount
+    db.commit()
+    return wallet
+
+def deduct_amount_from_wallet(db: Session, wallet_id: int, amount: float) -> Wallet:
+    wallet = db.query(Wallet).filter(Wallet.id == wallet_id).first()
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+    if wallet.balance < amount:
+        raise HTTPException(status_code=400, detail="Insufficient balance")
+    wallet.balance -= amount
     db.commit()
     return wallet
 

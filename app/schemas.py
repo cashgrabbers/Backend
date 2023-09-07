@@ -68,7 +68,6 @@ class Wallet(WalletBase):
 Transactions
 '''
 class TransactionBase(BaseModel):
-    sender_wallet_id: int
     receiver_wallet_id: int
     amount: float
 
@@ -143,3 +142,9 @@ class Deposit(DepositBase):
 
     class Config:
         orm_mode = True
+        
+'''
+Withdraw
+'''
+class WithdrawRequest(BaseModel):
+    amount: float

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
+from typing import Union
 
 '''
 Users
@@ -23,6 +24,13 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+        
+'''
+Logins
+'''
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 '''
 Wallets
@@ -84,6 +92,19 @@ class TransactionOut(BaseModel):
     class Config:
         orm_mode = True
 
+class DepositOut(BaseModel):
+    id: int
+    receiver_wallet_id: int
+    amount: float
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class TransactionAndDepositOut(BaseModel):
+    item_type: str
+    data: Union[TransactionOut, DepositOut]
+
 
 '''
 Tokens
@@ -96,3 +117,29 @@ class TokenData(BaseModel):
     email: str | None = None
     
 # TODO: Add in withdraws and deposits
+
+'''
+Deposits
+'''
+class DepositRequest(BaseModel):
+    amount: float
+    
+class CaptureRequest(BaseModel):
+    deposit_id: str
+    
+    
+class DepositBase(BaseModel):
+    receiver_wallet_id: int
+    amount: float
+    currency: str
+    paypal_order_id: str
+
+class DepositCreate(DepositBase):
+    pass
+
+class Deposit(DepositBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

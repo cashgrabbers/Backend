@@ -3,6 +3,7 @@ from .utils import get_paypal_session
 from app.routers.routers import get_current_user
 from ..models import Wallet
 import json
+import uuid
 
 import requests
 
@@ -25,7 +26,7 @@ def create_withdraw(account: str, withdraw: Wallet = Depends(get_current_user)):
 
     payload = json.dumps({
     "sender_batch_header": {
-        "sender_batch_id": "Payouts_1693969860",
+        "sender_batch_id": f"Payouts_{str(uuid.uuid4())}",
         "email_subject": "You have a payout!",
         "email_message": "You have received a payout! Thanks for using our service!"
     },
@@ -37,30 +38,30 @@ def create_withdraw(account: str, withdraw: Wallet = Depends(get_current_user)):
             "currency": "USD"
         },
         "note": "Thanks for your patronage!",
-        "sender_item_id": "201403140001",
+        "sender_item_id": str(uuid.uuid4()),
         "receiver": "Nola_Rempel@hotmail.com",
         "notification_language": "en-US"
         },
-        {
-        "recipient_type": "PHONE",
-        "amount": {
-            "value": "20.00",
-            "currency": "USD"
-        },
-        "note": "Thanks for your support!",
-        "sender_item_id": "201403140002",
-        "receiver": "1-868-872-5226"
-        },
-        {
-        "recipient_type": "PAYPAL_ID",
-        "amount": {
-            "value": "30.00",
-            "currency": "USD"
-        },
-        "note": "Thanks for your patronage!",
-        "sender_item_id": "201403140003",
-        "receiver": "5DEJUG27PZB9J"
-        }
+        # {
+        # "recipient_type": "PHONE",
+        # "amount": {
+        #     "value": "20.00",
+        #     "currency": "USD"
+        # },
+        # "note": "Thanks for your support!",
+        # "sender_item_id": "201403140002",
+        # "receiver": "1-868-872-5226"
+        # },
+        # {
+        # "recipient_type": "PAYPAL_ID",
+        # "amount": {
+        #     "value": "30.00",
+        #     "currency": "USD"
+        # },
+        # "note": "Thanks for your patronage!",
+        # "sender_item_id": "201403140003",
+        # "receiver": "5DEJUG27PZB9J"
+        # }
     ]
     })
 
@@ -68,7 +69,7 @@ def create_withdraw(account: str, withdraw: Wallet = Depends(get_current_user)):
     #        Not sure how to generate request-id
     headers = {
     'Content-Type': 'application/json',
-    'PayPal-Request-Id': '10eb74ec-358d-47c9-bfe9-d406ae0471f0',
+    # 'PayPal-Request-Id': '10eb74ec-358d-47c9-bfe9-d406ae0471f0',
     'Authorization': 'Bearer ' + get_paypal_session(),
     }
 

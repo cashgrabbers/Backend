@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from .utils import (get_paypal_session, add_balance_to_wallet)
+from .utils import (get_paypal_session, add_balance_to_wallet, create_deposit_transaction)
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .auth import get_current_user
-from ..schemas import User, Wallet
+from ..schemas import User, Wallet, DepositRequest, CaptureRequest, DepositCreate
 from ..config import settings
+
 
 import json
 import requests
@@ -17,8 +18,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/create/{amount}")
-def create_deposit(amount: float):
+@router.post("/create")
+def create_deposit(deposit_request: DepositRequest):
+    amount = deposit_request.amount
     try:
         url = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
 
@@ -69,15 +71,12 @@ def create_deposit(amount: float):
     
     except Exception as e:
         # Handle exceptions as needed
-        print(e)
+        raise HTTPException(status_code=400, detail=str(e))
 
-        # FIXME: not sure how to raise e actually
-        # raise e
-        pass
 
-@router.post("/capture/{deposit_id}")
-def capture_deposit(deposit_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    # Here we add to the wallet?  
+@router.post("/capture")
+def capture_deposit(capture_request: CaptureRequest, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    deposit_id = capture_request.deposit_id
     
     url = "https://api-m.sandbox.paypal.com/v2/checkout/orders/" + deposit_id + "/capture"
 
@@ -96,12 +95,23 @@ def capture_deposit(deposit_id: str, db: Session = Depends(get_db), current_user
         print(response.json().get('purchase_units')[0].get('amount').get('value'), response.json().get('purchase_units')[0].get('amount').get('currency_code')) #10.00 SGD
         
         amount = float(response.json().get('purchase_units')[0].get('amount').get('value'))
-        # currency = response.json().get('purchase_units')[0].get('amount').get('currency_code')
-
+        currency = response.json().get('purchase_units')[0].get('amount').get('currency_code')
+        
+        #  update wallet balance
         updated_wallet = add_balance_to_wallet(db, current_user.wallet.id, amount)
-        return {"status": "success", "updated_balance": updated_wallet.balance}
-    
-    # Might need to change?
+        
+        #  Log the deposit transaction
+        db_deposit = DepositCreate(
+            receiver_wallet_id = current_user.wallet.id,
+            amount = amount,
+            currency = currency,
+            paypal_order_id=deposit_id
+        )
+        
+        deposit_entry = create_deposit_transaction(db, db_deposit)
+        
+        return {"status": "success", "updated_balance": updated_wallet.balance, "deposit_entry": deposit_entry}
+
     return response.json()
 
 @router.get("/{deposit_id}")

@@ -1,6 +1,6 @@
-# ewalletBackend
+<!-- # ewalletBackend -->
 
-This project was generated using fastapi_template.
+<!-- This project was generated using fastapi_template.
 
    <a href="https://codespaces.new/cashgrabbers/Backend"><img src="https://img.shields.io/badge/Github_Codespace-Open-blue?logo=github" alt="Open in GitHub Codespaces"></a>
 ## Poetry
@@ -19,7 +19,91 @@ This will start the server on the configured host.
 
 You can find swagger documentation at `/api/docs`.
 
-You can read more about poetry here: https://python-poetry.org/
+You can read more about poetry here: https://python-poetry.org/ -->
+
+# API Endpoints
+
+## Public Routes
+
+### Create User
+
+- **Endpoint:** `POST /create`
+- **Description:** Create a new user.
+- **Sample Input:**
+  ```json
+  {
+    "email": "test2@mymail.com",
+    "password": "string",
+    "first_name": "nigel",
+    "last_name": "mun",
+    "phone_number": "12345"
+  }
+  ```
+
+### Login
+
+- **Endpoint:** `POST /login`
+- **Description:** Login and receive the access token.
+- **Sample Input:**
+  ```json
+  {
+    "email": "test1@mymail.com",
+    "password": "string"
+  }
+  ```
+
+## Protected Routes
+
+These routes require an access token to access each of the endpoints.
+
+### User Details
+
+- **Endpoint:** `GET /users`
+- **Description:** Show the details of the specific logged-in user, such as wallet balance, email, phone number, and name.
+- **Headers:** Requires access token in `Authorization` header.
+
+### Transactions
+
+- **Endpoint:** `GET /transactions`
+- **Description:** Show all transactions (transaction, deposit, withdraw) of the logged-in user.
+- **Headers:** Requires access token in `Authorization` header.
+
+### Transfer Money
+
+- **Endpoint:** `POST /transfer`
+- **Description:** Transfer money from sender to receiver wallet. This updates both wallet values and Transaction Logs.
+- **Sample Input:**
+  ```json
+  {
+    "sender_wallet_id": 3,
+    "receiver_wallet_id": 1,
+    "amount": 1.0
+  }
+  ```
+- **Headers:** Requires access token in `Authorization` header.
+
+### Create Deposit (Using PayPal)
+
+- **Endpoint:** `POST /deposit/create`
+- **Description:** Create a deposit into the account using PayPal. This returns the URL to select the payment type.
+- **Sample Input:**
+  ```json
+  {
+    "amount": 10.0
+  }
+  ```
+
+### Capture Deposit
+
+- **Endpoint:** `POST /deposit/capture`
+- **Description:** Captures the `deposit_id` to complete the transaction, updating the wallet value and Deposit transaction Logs.
+- **Sample Input:**
+  ```json
+  {
+    "deposit_id": "18655675FT415211F"
+  }
+  ```
+- **Headers:** Requires access token in `Authorization` header.
 
 ## Docker
 
@@ -72,7 +156,7 @@ This application can be configured with environment variables.
 You can create `.env` file in the root directory and place all
 environment variables here.
 
-All environment variables should start with "EWALLETBACKEND_" prefix.
+All environment variables should start with "EWALLETBACKEND\_" prefix.
 
 For example if you see in your "ewalletBackend/settings.py" a variable named like
 `random_parameter`, you should provide the "EWALLETBACKEND_RANDOM_PARAMETER"
@@ -80,6 +164,7 @@ variable to configure the value. This behaviour can be changed by overriding `en
 in `ewalletBackend.settings.Settings.Config`.
 
 An example of .env file:
+
 ```bash
 EWALLETBACKEND_RELOAD="True"
 EWALLETBACKEND_PORT="8000"
@@ -91,6 +176,7 @@ You can read more about BaseSettings class here: https://pydantic-docs.helpmanua
 ## Pre-commit
 
 To install pre-commit simply run inside the shell:
+
 ```bash
 pre-commit install
 ```
@@ -99,14 +185,13 @@ pre-commit is very useful to check your code before publishing it.
 It's configured using .pre-commit-config.yaml file.
 
 By default it runs:
-* black (formats your code);
-* mypy (validates types);
-* isort (sorts imports in all files);
-* flake8 (spots possible bugs);
 
+- black (formats your code);
+- mypy (validates types);
+- isort (sorts imports in all files);
+- flake8 (spots possible bugs);
 
 You can read more about pre-commit here: https://pre-commit.com/
-
 
 ## Running tests
 
@@ -119,18 +204,18 @@ docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.dev.yml --p
 
 For running tests on your local machine.
 
-
 2. Run the pytest.
+
 ```bash
 pytest -vv .
 ```
 
-
-
 ## Original Requirements
+
 The boss wants to create a secure e-wallet app system that enables digital payments and expands financial access. The app must allow users to securely register and login to the e-wallet using email/password or social login like Google or Facebook. The app should use JSON Web Tokens for authentication. Users should be able to add bank accounts/cards, view balances, and transfer money between accounts within the e-wallet. The app should integrate with payment gateways like Stripe to enable loading money into the e-wallet from bank accounts or cards. The app should enable P2P payments to other users via email/mobile number within the e-wallet. The app should use industry standard practices like hashing passwords, encryption, HTTPS, etc. The app should implement 2-factor authentication for sensitive actions like withdrawals. The app should use end-to-end encryption for all payment transactions. No sensitive user data should be stored in plain text. The app should have comprehensive unit, integration and e2e tests. The tech stack to be used includes FastAPI, SQLAlchemy, Pydantic, Asyncio, Websockets, Stripe Python, PyTest, Tox, Docker, Kubernetes, Flower, Sentry SDK, Redis, Celery, MkDocs, and Python's built-in cryptographic libraries.
 
 ## Product Goals
+
 ```python
 [
     "Create a secure e-wallet app that enables digital payments and expands financial access.",
@@ -140,6 +225,7 @@ The boss wants to create a secure e-wallet app system that enables digital payme
 ```
 
 ## User Stories
+
 ```python
 [
     "As a user, I want to securely register and login to the e-wallet using my email/password or social login.",
@@ -151,6 +237,7 @@ The boss wants to create a secure e-wallet app system that enables digital payme
 ```
 
 ## Competitive Analysis
+
 ```python
 [
     "PayPal: A well-established digital wallet with a wide user base. However, it has high transaction fees and customer service issues.",
@@ -164,6 +251,7 @@ The boss wants to create a secure e-wallet app system that enables digital payme
 ```
 
 ## Competitive Quadrant Chart
+
 ```mermaid
 quadrantChart
     title Reach and engagement of campaigns
@@ -184,9 +272,11 @@ quadrantChart
 ```
 
 ## Requirement Analysis
+
 The product should be a secure e-wallet app that allows users to register and login, add bank accounts/cards, view balances, transfer money, load money, and make P2P payments. It should use industry standard security practices and have comprehensive tests. The tech stack should include FastAPI, SQLAlchemy, Pydantic, Asyncio, Websockets, Stripe Python, PyTest, Tox, Docker, Kubernetes, Flower, Sentry SDK, Redis, Celery, MkDocs, and Python's built-in cryptographic libraries.
 
 ## Requirement Pool
+
 ```python
 [
     ("Secure registration and login system with email/password or social login", "P0"),
@@ -198,18 +288,21 @@ The product should be a secure e-wallet app that allows users to register and lo
 ```
 
 ## UI Design draft
+
 The app should have a clean and intuitive interface. The home screen should display the user's balance and recent transactions. There should be clear options for adding bank accounts/cards, transferring money, and making P2P payments. Sensitive actions like withdrawals should prompt for 2-factor authentication. The app should use a neutral color scheme with high contrast for readability.
 
-
 ## Implementation approach
+
 We will use FastAPI for building the APIs as it is a modern, fast (high-performance), web framework for building APIs with Python 3.6+ based on standard Python type hints. SQLAlchemy will be used for the ORM to interact with the database. Pydantic will be used for data validation and settings management using Python type annotations. Asyncio will be used for handling asynchronous operations. Websockets will be used for real-time communication. Stripe Python will be used for integrating with the Stripe payment gateway. PyTest and Tox will be used for running tests. Docker and Kubernetes will be used for containerization and orchestration. Flower will be used for real-time monitoring of Celery tasks. Sentry SDK will be used for error tracking. Redis and Celery will be used for task queue management. MkDocs will be used for documentation. Python's built-in cryptographic libraries will be used for encryption and hashing.
 
 ## Python package name
+
 ```python
 "secure_ewallet"
 ```
 
 ## File list
+
 ```python
 [
     "main.py",
@@ -228,6 +321,7 @@ We will use FastAPI for building the APIs as it is a modern, fast (high-performa
 ```
 
 ## Data structures and interface definitions
+
 ```mermaid
 classDiagram
     class User{
@@ -261,6 +355,7 @@ classDiagram
 ```
 
 ## Program call flow
+
 ```mermaid
 sequenceDiagram
     participant M as Main
@@ -277,9 +372,8 @@ sequenceDiagram
     W->>M: return updated_wallet
 ```
 
-
-
 ## Required Python third-party packages
+
 ```python
 """
 fastapi==0.63.0
@@ -302,6 +396,7 @@ bcrypt==3.2.0
 ```
 
 ## Required Other language third-party packages
+
 ```python
 """
 No third-party packages required in other languages.
@@ -309,6 +404,7 @@ No third-party packages required in other languages.
 ```
 
 ## Full API spec
+
 ```python
 """
 openapi: 3.0.0
@@ -424,6 +520,7 @@ components:
 ```
 
 ## Logic Analysis
+
 ```python
 [
     ("main.py", "Contains the main entry point for the application. Initializes FastAPI application and includes routers."),
@@ -442,6 +539,7 @@ components:
 ```
 
 ## Task list
+
 ```python
 [
     "config.py",
@@ -460,6 +558,7 @@ components:
 ```
 
 ## Shared Knowledge
+
 ```python
 """
 'config.py' contains configuration variables for the application. These variables are loaded from environment variables and have default values.
@@ -477,16 +576,21 @@ components:
 ```
 
 ## Deployment
+
 - ssh into linode server ssh root@170.187.226.220
 - pull latest from github repo
 - build docker image
+
 ```bash
 docker build -t ewallet-backend .
 ```
+
 - run docker image
+
 ```bash
 docker run -d -p 80:80 ewallet-backend
 ```
 
 ## Production endpoint
+
 http://170-187-226-220.ip.linodeusercontent.com

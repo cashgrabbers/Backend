@@ -1,5 +1,5 @@
 ## utils.py
-from typing import Any, List
+from typing import Any, List, Union
 
 import requests
 from fastapi import HTTPException, status
@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 
 from .auth import hash_password
 from ..config import settings
-from ..models import Transaction, User, Wallet
+from ..models import Transaction, User, Wallet, Deposit
 from ..schemas import (TransactionCreate, UserCreate, UserWithWallet,
-                        WalletCreate, WalletOut)
+                        WalletCreate, WalletOut, DepositCreate)
 
 
 def get_user(db: Session, user_id: int) -> Any:
@@ -137,10 +137,16 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
 # def get_transaction(db: Session, transaction_id: int) -> Any:
 #     return db.query(Transaction).filter(Transaction.id == transaction_id).first()
 
-def get_transactions(db: Session, current_user: User, skip: int = 0, limit: int = 100) -> List[Transaction]:
-    return db.query(Transaction) \
+def get_transactions_and_deposits(db: Session, current_user: User, skip: int = 0, limit: int = 100) -> List[Union[Transaction, Deposit]]:
+    transactions = db.query(Transaction) \
             .filter(or_(Transaction.sender_wallet_id == current_user.id, Transaction.receiver_wallet_id == current_user.id)) \
             .offset(skip).limit(limit).all()
+    deposits = db.query(Deposit) \
+            .filter(Deposit.receiver_wallet_id == current_user.id) \
+            .offset(skip).limit(limit).all()
+    combined = [{"item_type": "transaction", "data": t} for t in transactions] + [{"item_type": "deposit", "data": d} for d in deposits]
+    
+    return sorted(combined, key=lambda k: k['data'].created_at, reverse=True)
 
 def create_transaction(db: Session, transaction: TransactionCreate) -> Transaction:
     db_transaction = Transaction(**transaction.dict())
@@ -181,3 +187,10 @@ def get_paypal_session():
     except Exception as e:
         # Handle exceptions as needed
         pass
+
+def create_deposit_transaction(db: Session, deposit: DepositCreate):
+    db_deposit = Deposit(**deposit.dict())
+    db.add(db_deposit)
+    db.commit()
+    db.refresh(db_deposit)
+    return db_deposit

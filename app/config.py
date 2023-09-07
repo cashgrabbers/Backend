@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     FLOWER_PORT: int = 5555
     FLOWER_URL_PREFIX: str = "flower"
     FLOWER_BASIC_AUTH: str = "user:password"
-    BUBBLE_APP_URL: str ="https://e-wallet-94178.bubbleapps.io/version-test/"
+    BUBBLE_APP_URL: str ="https://e-wallet-94178.bubbleapps.io/version-test/dashboard"
 
     # class Config:
     #     env_file = ".env"

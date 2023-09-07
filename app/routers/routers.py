@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from ..config import settings
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Union
 from ..database import get_db
 from ..schemas import (
     UserCreate,
@@ -17,6 +17,9 @@ from ..schemas import (
     Transaction,
     UserWithWallet,
     TransactionOut,
+    DepositOut,
+    TransactionAndDepositOut,
+    LoginRequest
 )
 from .auth import authenticate_user, create_access_token, get_current_user
 from .utils import (
@@ -26,7 +29,7 @@ from .utils import (
     get_wallet,
     get_wallets,
     # get_transaction,
-    get_transactions,
+    get_transactions_and_deposits,
     create_transaction,
     check_wallet_balance,
     update_wallet_balance,
@@ -49,9 +52,9 @@ def create_user_route(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token, status_code=status.HTTP_200_OK)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db),
+    request: LoginRequest, db: Session = Depends(get_db),
 ):
-    user = authenticate_user(db, form_data.username, form_data.password)
+    user = authenticate_user(db, request.email, request.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,10 +83,10 @@ def create_transaction(
     return transfer_money(db=db, transaction=transaction, current_user=current_user)
 
 
-@router.get("/transactions", response_model=List[TransactionOut])
+@router.get("/transactions", response_model=List[TransactionAndDepositOut])
 def get_all_transactions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Get all transactions. Can be filtered with optional skip and limit parameters.
     """
-    transactions = get_transactions(db, current_user = current_user, skip=skip, limit=limit)
+    transactions = get_transactions_and_deposits(db, current_user = current_user, skip=skip, limit=limit)
     return transactions

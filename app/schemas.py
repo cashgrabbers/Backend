@@ -24,7 +24,7 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
-        
+
 '''
 Logins
 '''
@@ -44,7 +44,7 @@ class WalletOut(BaseModel):
     id: int
     balance: float
     currency: Currency = Currency.SGD
-    
+
 class UserWithWallet(User):
     wallet: WalletOut
 
@@ -67,6 +67,10 @@ class Wallet(WalletBase):
 '''
 Transactions
 '''
+class InputTransferForm(BaseModel):
+    receiver_wallet_email: str
+    amount: float
+
 class TransactionBase(BaseModel):
     receiver_wallet_id: int
     amount: float
@@ -100,9 +104,7 @@ class DepositOut(BaseModel):
     class Config:
         orm_mode = True
 
-class TransactionAndDepositOut(BaseModel):
-    item_type: str
-    data: Union[TransactionOut, DepositOut]
+
 
 
 '''
@@ -114,7 +116,7 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: str | None = None
-    
+
 # TODO: Add in withdraws and deposits
 
 '''
@@ -122,11 +124,11 @@ Deposits
 '''
 class DepositRequest(BaseModel):
     amount: float
-    
+
 class CaptureRequest(BaseModel):
     deposit_id: str
-    
-    
+
+
 class DepositBase(BaseModel):
     receiver_wallet_id: int
     amount: float
@@ -142,9 +144,20 @@ class Deposit(DepositBase):
 
     class Config:
         orm_mode = True
-        
+
 '''
 Withdraw
 '''
 class WithdrawRequest(BaseModel):
     amount: float
+
+class WithdrawTransactionOut(BaseModel):
+    id: int
+    sender_wallet_id: int
+    amount: float
+    currency: str
+    paypal_payout_id: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True

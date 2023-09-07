@@ -52,7 +52,7 @@ class Withdraw(Base):
     amount = Column(Float)
     currency = Column(String, default="SGD")
     paypal_payout_id = Column(String)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Deposit(Base):
@@ -63,10 +63,5 @@ class Deposit(Base):
     amount = Column(Float)
     currency = Column(String, default="SGD")
     paypal_order_id = Column(String)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
-
-
-    
-
-

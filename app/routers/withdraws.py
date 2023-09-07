@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from .utils import get_paypal_session, check_wallet_balance, deduct_amount_from_wallet
+from .utils import get_paypal_session, check_wallet_balance, deduct_amount_from_wallet, create_withdraw_transaction
 from app.routers.routers import get_current_user
 from ..models import Wallet, User
 from ..schemas import WithdrawRequest
@@ -18,7 +18,7 @@ router = APIRouter(
 
 
 @router.get("/create")
-def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db),):
+def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     url = "https://api-m.sandbox.paypal.com/v1/payments/payouts"
     amount = withdraw_request.amount
     account_email = user.email
@@ -27,21 +27,21 @@ def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_
     "sender_batch_header": {
         "sender_batch_id": f"Payouts_{str(uuid.uuid4())}",
         "email_subject": "You have a payout!",
-        "email_message": "You have received a payout! Thanks for using our service!"
+        "email_message": "You have received a payout! Thanks for using our service!",
     },
     "items": [
         {
         "recipient_type": "EMAIL",
         "amount": {
             "value": amount,
-            "currency": "USD"
+            "currency": "USD",
         },
         "note": "Thanks for your patronage!",
         "sender_item_id": str(uuid.uuid4()),
         "receiver": account_email,
-        "notification_language": "en-US"
+        "notification_language": "en-US",
         },
-    ]
+    ],
     })
 
     headers = {
@@ -55,8 +55,12 @@ def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_
     else:
         response = requests.request("POST", url, headers=headers, data=payload)
         response.raise_for_status() # Check that the request was successful
-        
+
         # deduct money from wallet
         withdraw_req = deduct_amount_from_wallet(db, user.id, amount)
-        return {"status": "success", "updated_balance": withdraw_req.balance, "email": account_email}
 
+        # create transaction log
+        paypal_transaction_id = response.json().get("batch_header").get("payout_batch_id")
+        withdraw_entry = create_withdraw_transaction(db, user.id, amount, paypal_transaction_id)
+
+        return {"status": "success", "updated_balance": withdraw_req.balance, "email": account_email, "withdraw": withdraw_entry}

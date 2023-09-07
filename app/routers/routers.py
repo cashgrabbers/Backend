@@ -18,20 +18,17 @@ from ..schemas import (
     UserWithWallet,
     TransactionOut,
     DepositOut,
-    TransactionAndDepositOut,
-    LoginRequest
+    InputTransferForm,
+    LoginRequest,
 )
 from .auth import authenticate_user, create_access_token, get_current_user
 from .utils import (
     get_user,
-    get_users,
     create_user,
     get_wallet,
-    get_wallets,
     get_transactions_and_deposits,
     create_transaction,
     check_wallet_balance,
-    update_wallet_balance,
     to_user_with_wallet,
     transfer_money,
 )
@@ -39,13 +36,9 @@ from .utils import (
 router = APIRouter()
 
 
-@router.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
 @router.post("/create", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_user_route(user: UserCreate, db: Session = Depends(get_db)):
+
     return create_user(db=db, user=user)
 
 
@@ -74,7 +67,7 @@ def get_protected_route(current_user: User = Depends(get_current_user)):
 
 @router.post("/transfer", response_model=Transaction)
 def create_transaction(
-    transaction: TransactionCreate,
+    transaction: InputTransferForm,
     db: Session = Depends(get_db),
     # verify JWT token and get current user
     current_user: User = Depends(get_current_user),
@@ -82,7 +75,7 @@ def create_transaction(
     return transfer_money(db=db, transaction=transaction, current_user=current_user)
 
 
-@router.get("/transactions", response_model=List[TransactionAndDepositOut])
+@router.get("/transactions")
 def get_all_transactions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Get all transactions. Can be filtered with optional skip and limit parameters.

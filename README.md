@@ -106,7 +106,7 @@ These routes require an access token to access each of the endpoints.
   }
   ```
 
-  ### Create Withdrawal (Using PayPal)
+### Create Withdrawal (Using PayPal)
 
 - **Endpoint:** `POST /withdraws/create`
 - **Description:** Create a withdrawal from the account using PayPal.

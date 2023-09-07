@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/create")
+@router.post("/create")
 def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     url = "https://api-m.sandbox.paypal.com/v1/payments/payouts"
     amount = withdraw_request.amount

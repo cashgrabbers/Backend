@@ -1,34 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from datetime import timedelta
 
 from ..config import settings
 from sqlalchemy.orm import Session
-from typing import List, Union
 from ..database import get_db
 from ..schemas import (
     UserCreate,
     User,
     Token,
-    WalletCreate,
-    Wallet,
-    TransactionCreate,
     Transaction,
     UserWithWallet,
-    TransactionOut,
-    DepositOut,
     InputTransferForm,
     LoginRequest,
 )
 from .auth import authenticate_user, create_access_token, get_current_user
 from .utils import (
-    get_user,
     create_user,
-    get_wallet,
     get_transactions_and_deposits,
-    create_transaction,
-    check_wallet_balance,
     to_user_with_wallet,
     transfer_money,
 )

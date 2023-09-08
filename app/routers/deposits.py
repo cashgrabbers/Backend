@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import JSONResponse
 from .utils import (get_paypal_session, add_balance_to_wallet, create_deposit_transaction)
 from sqlalchemy.orm import Session
 from ..database import get_db
 from .auth import get_current_user
-from ..schemas import User, Wallet, DepositRequest, CaptureRequest, DepositCreate
+from ..schemas import User, DepositRequest, CaptureRequest, DepositCreate
 from ..config import settings
 
 
@@ -19,7 +18,7 @@ router = APIRouter(
 )
 
 @router.post("/create")
-def create_deposit(deposit_request: DepositRequest, current_user: User = Depends(get_current_user) ):
+def create_deposit(deposit_request: DepositRequest):
     amount = deposit_request.amount
     try:
         url = "https://api-m.sandbox.paypal.com/v2/checkout/orders"
@@ -112,15 +111,3 @@ def capture_deposit(capture_request: CaptureRequest, db: Session = Depends(get_d
         return {"status": "success", "updated_balance": updated_wallet.balance, "deposit_entry": deposit_entry}
 
     return response.json()
-
-# @router.get("/{deposit_id}")
-# def get_deposit(deposit_id: str):
-#     headers = {
-#         'Authorization': 'Bearer ' + get_paypal_session(),
-#     }
-
-#     # FIXME: deposit id doesnt mean transaction id, so how is this supposed to scale?
-#     #           Testing purposes: 4AC52781DN396583L
-#     response = requests.get('https://api-m.sandbox.paypal.com/v2/checkout/orders/' + deposit_id, headers=headers)
-
-#     return response.json()

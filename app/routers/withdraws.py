@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from .utils import get_paypal_session, check_wallet_balance, deduct_amount_from_wallet, create_withdraw_transaction
 from app.routers.routers import get_current_user
-from ..models import Wallet, User
+from ..models import User
 from ..schemas import WithdrawRequest
 import json
 import uuid

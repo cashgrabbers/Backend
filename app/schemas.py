@@ -54,15 +54,15 @@ class WalletBase(BaseModel):
 class WalletCreate(WalletBase):
     pass
 
-class Wallet(WalletBase):
-    id: int
-    balance: float
-    currency: Currency = Currency.SGD
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+# class Wallet(WalletBase):
+#     id: int
+#     balance: float
+#     currency: Currency = Currency.SGD
+#     created_at: datetime = datetime.utcnow()
+#     updated_at: datetime = datetime.utcnow()
 
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True
 
 '''
 Transactions
@@ -85,26 +85,15 @@ class Transaction(TransactionBase):
     class Config:
         orm_mode = True
 
-class TransactionOut(BaseModel):
-    id: int
-    sender_wallet_id: int
-    receiver_wallet_id: int
-    amount: float
-    created_at: datetime
+# class TransactionOut(BaseModel):
+#     id: int
+#     sender_wallet_id: int
+#     receiver_wallet_id: int
+#     amount: float
+#     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
-class DepositOut(BaseModel):
-    id: int
-    receiver_wallet_id: int
-    amount: float
-    created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
+#     class Config:
+#         orm_mode = True
 
 
 '''
@@ -138,12 +127,12 @@ class DepositBase(BaseModel):
 class DepositCreate(DepositBase):
     pass
 
-class Deposit(DepositBase):
-    id: int
-    created_at: datetime
+# class Deposit(DepositBase):
+#     id: int
+#     created_at: datetime
 
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True
 
 '''
 Withdraw
@@ -151,13 +140,13 @@ Withdraw
 class WithdrawRequest(BaseModel):
     amount: float
 
-class WithdrawTransactionOut(BaseModel):
-    id: int
-    sender_wallet_id: int
-    amount: float
-    currency: str
-    paypal_payout_id: str
-    created_at: datetime
+# class WithdrawTransactionOut(BaseModel):
+#     id: int
+#     sender_wallet_id: int
+#     amount: float
+#     currency: str
+#     paypal_payout_id: str
+#     created_at: datetime
 
-    class Config:
-        orm_mode = True
+#     class Config:
+#         orm_mode = True

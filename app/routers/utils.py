@@ -2,7 +2,7 @@
 from typing import Any, List, Union
 
 import requests
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -10,13 +10,17 @@ from .auth import hash_password
 from ..config import settings
 from ..models import Transaction, User, Wallet, Deposit, Withdraw
 from ..schemas import (
-    TransactionCreate, UserCreate, UserWithWallet,
-    WalletCreate, WalletOut, DepositCreate,
+    TransactionCreate,
+    UserCreate,
+    UserWithWallet,
+    WalletOut,
+    DepositCreate,
 )
 
 
 def get_user(db: Session, user_id: int) -> Any:
     return db.query(User).filter(User.id == user_id).first()
+
 
 def get_user_by_email(db: Session, email: str) -> User:
     return db.query(User).filter(User.email == email).first()
@@ -30,7 +34,13 @@ def create_user(db: Session, user: UserCreate) -> User:
     hashed_password = hash_password(user.password)
 
     # create user
-    db_user = User(email=user.email, password=hashed_password, first_name=user.first_name, last_name=user.last_name, phone_number=user.phone_number)
+    db_user = User(
+        email=user.email,
+        password=hashed_password,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        phone_number=user.phone_number,
+    )
     db.add(db_user)
     db.commit()
 
@@ -43,14 +53,17 @@ def create_user(db: Session, user: UserCreate) -> User:
     db.refresh(db_wallet)
     return db_user
 
+
 def get_wallet(db: Session, wallet_id: int) -> Any:
     return db.query(Wallet).filter(Wallet.id == wallet_id).first()
+
 
 def get_wallet_balance(db: Session, wallet_id: int) -> float:
     wallet = get_wallet(db, wallet_id)
     if not wallet:
         raise HTTPException(status_code=404, detail="Wallet not found")
     return wallet.balance
+
 
 def check_wallet_balance(db: Session, wallet_id: int, amount: float) -> bool:
     wallet = get_wallet(db, wallet_id)
@@ -59,6 +72,7 @@ def check_wallet_balance(db: Session, wallet_id: int, amount: float) -> bool:
     if wallet.balance < amount:
         return False
     return True
+
 
 def to_user_with_wallet(orm_user: User) -> UserWithWallet:
     return UserWithWallet(
@@ -78,7 +92,10 @@ def to_user_with_wallet(orm_user: User) -> UserWithWallet:
         ),
     )
 
-def transfer_money(db: Session, transaction: TransactionCreate, current_user: User) -> Transaction:
+
+def transfer_money(
+    db: Session, transaction: TransactionCreate, current_user: User
+) -> Transaction:
     # Get receiver email
     receiver_email = transaction.receiver_wallet_email
 
@@ -88,10 +105,8 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
     if not receiver_user:
         raise HTTPException(status_code=404, detail="No such email on app")
 
-
     # From receiver user object, get receiver wallet
     receiver_wallet = get_wallet(db, receiver_user.id)
-
 
     # Fetch sender's wallet using the current user's ID
     sender_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
@@ -127,28 +142,48 @@ def transfer_money(db: Session, transaction: TransactionCreate, current_user: Us
 # def get_transaction(db: Session, transaction_id: int) -> Any:
 #     return db.query(Transaction).filter(Transaction.id == transaction_id).first()
 
-def get_transactions_and_deposits(db: Session, current_user: User, skip: int = 0, limit: int = 100) -> List[Union[Transaction, Deposit, Withdraw]]:
 
+def get_transactions_and_deposits(
+    db: Session, current_user: User, skip: int = 0, limit: int = 100
+) -> List[Union[Transaction, Deposit, Withdraw]]:
     # trasnactions
-    transactions = db.query(Transaction) \
-            .filter(or_(Transaction.sender_wallet_id == current_user.id, Transaction.receiver_wallet_id == current_user.id)) \
-            .offset(skip).limit(limit).all()
+    transactions = (
+        db.query(Transaction)
+        .filter(
+            or_(
+                Transaction.sender_wallet_id == current_user.id,
+                Transaction.receiver_wallet_id == current_user.id,
+            )
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     # deposits
-    deposits = db.query(Deposit) \
-            .filter(Deposit.receiver_wallet_id == current_user.id) \
-            .offset(skip).limit(limit).all()
+    deposits = (
+        db.query(Deposit)
+        .filter(Deposit.receiver_wallet_id == current_user.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
     # withdrawals
-    withdrawals = db.query(Withdraw) \
-        .filter(Withdraw.sender_wallet_id == current_user.id) \
-        .offset(skip).limit(limit).all()
+    withdrawals = (
+        db.query(Withdraw)
+        .filter(Withdraw.sender_wallet_id == current_user.id)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
     # Combine transactions, deposits, and withdrawals
-    combined = [{"item_type": "transaction", "data": t} for t in transactions] + \
-               [{"item_type": "deposit", "data": d} for d in deposits] + \
-               [{"item_type": "withdrawal", "data": w} for w in withdrawals]
+    combined = (
+        [{"item_type": "transaction", "data": t} for t in transactions]
+        + [{"item_type": "deposit", "data": d} for d in deposits]
+        + [{"item_type": "withdrawal", "data": w} for w in withdrawals]
+    )
 
-    return sorted(combined, key=lambda k: k['data'].created_at, reverse=True)
-
+    return sorted(combined, key=lambda k: k["data"].created_at, reverse=True)
 
 
 def create_transaction(db: Session, transaction: TransactionCreate) -> Transaction:
@@ -158,6 +193,7 @@ def create_transaction(db: Session, transaction: TransactionCreate) -> Transacti
     db.refresh(db_transaction)
     return db_transaction
 
+
 def add_balance_to_wallet(db: Session, wallet_id: int, amount: float):
     wallet = db.query(Wallet).filter(Wallet.id == wallet_id).first()
     if not wallet:
@@ -165,6 +201,7 @@ def add_balance_to_wallet(db: Session, wallet_id: int, amount: float):
     wallet.balance += amount
     db.commit()
     return wallet
+
 
 def deduct_amount_from_wallet(db: Session, wallet_id: int, amount: float) -> Wallet:
     wallet = db.query(Wallet).filter(Wallet.id == wallet_id).first()
@@ -176,14 +213,15 @@ def deduct_amount_from_wallet(db: Session, wallet_id: int, amount: float) -> Wal
     db.commit()
     return wallet
 
+
 def get_paypal_session():
     try:
         url = "https://api-m.sandbox.paypal.com/v1/oauth2/token"
 
-        payload = 'grant_type=client_credentials'
+        payload = "grant_type=client_credentials"
         headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic '+ settings.PAYPAL_API_KEY,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic " + settings.PAYPAL_API_KEY,
         }
         response = requests.request("POST", url, headers=headers, data=payload)
 
@@ -201,6 +239,7 @@ def get_paypal_session():
         # Handle exceptions as needed
         pass
 
+
 def create_deposit_transaction(db: Session, deposit: DepositCreate):
     db_deposit = Deposit(**deposit.dict())
     db.add(db_deposit)
@@ -208,8 +247,16 @@ def create_deposit_transaction(db: Session, deposit: DepositCreate):
     db.refresh(db_deposit)
     return db_deposit
 
-def create_withdraw_transaction(db: Session, user_id: int, amount: float, paypal_transaction_id: str):
-    db_withdraw = Withdraw(sender_wallet_id=user_id, amount=amount, currency='SGD', paypal_payout_id=paypal_transaction_id)
+
+def create_withdraw_transaction(
+    db: Session, user_id: int, amount: float, paypal_transaction_id: str
+):
+    db_withdraw = Withdraw(
+        sender_wallet_id=user_id,
+        amount=amount,
+        currency="SGD",
+        paypal_payout_id=paypal_transaction_id,
+    )
     db.add(db_withdraw)
     db.commit()
     db.refresh(db_withdraw)

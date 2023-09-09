@@ -34,7 +34,7 @@ def create_withdraw(withdraw_request: WithdrawRequest, user: User = Depends(get_
         "recipient_type": "EMAIL",
         "amount": {
             "value": amount,
-            "currency": "USD",
+            "currency": "SGD",
         },
         "note": "Thanks for your patronage!",
         "sender_item_id": str(uuid.uuid4()),
